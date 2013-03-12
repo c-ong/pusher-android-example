@@ -55,7 +55,6 @@ public class MainActivity extends Activity
 	private void bindToConnectionSwitch() {
 		connectionSwitch = (Switch)this.findViewById(R.id.connectSwitch);
 		connectionSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
 			public void onCheckedChanged(CompoundButton button, boolean checked) {
 				if(checked) {
 					pusher.connect();
@@ -68,7 +67,6 @@ public class MainActivity extends Activity
 	}
 	
 	//ConnectionEventListener implementation
-	@Override
 	public void onConnectionStateChange(ConnectionStateChange change) {
 		String msg = String.format("Connection state changed from [%s] to [%s]",
 				change.getPreviousState(), change.getCurrentState() );
@@ -76,20 +74,17 @@ public class MainActivity extends Activity
 		log( msg );
 	}
 
-	@Override
 	public void onError(String message, String code, Exception e) {
 		String msg = String.format("Connection error: [%s] [%s] [%s]", message, code, e);
 		log(msg);
 	}
 
 	// ChannelEventListener implementation
-	@Override
 	public void onEvent(String channelName, String eventName, String data) {
 		String msg = String.format("Event received: [%s] [%s] [%s]", channelName, eventName, data);
 		log( msg );
 	}
 
-	@Override
 	public void onSubscriptionSucceeded(String channelName) {
 		String msg = String.format("Subscription succeeded for [%s]", channelName);
 		log( msg );
