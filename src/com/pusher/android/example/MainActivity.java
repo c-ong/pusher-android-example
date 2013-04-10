@@ -1,5 +1,9 @@
 package com.pusher.android.example;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,6 +28,11 @@ public class MainActivity extends Activity
 	
 	private Pusher pusher;
 	private Channel publicChannel;
+	
+	private ConnectionState targetState = ConnectionState.DISCONNECTED;
+	private static final ScheduledExecutorService connectionAttemptsWorker = Executors.newSingleThreadScheduledExecutor();
+	private int failedConnectionAttempts = 0;
+	private static int MAX_RETRIES = 10;
 	
 	private Switch connectionSwitch;
 	private TextView logTextView;
@@ -56,14 +65,41 @@ public class MainActivity extends Activity
 		connectionSwitch = (Switch)this.findViewById(R.id.connectSwitch);
 		connectionSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			public void onCheckedChanged(CompoundButton button, boolean checked) {
-				if(checked) {
-					pusher.connect();
-				}
-				else {
-					pusher.disconnect();
-				}				
+				targetState = (checked? ConnectionState.CONNECTED : ConnectionState.DISCONNECTED );
+				achieveExpectedConnectionState();
 			}
 		});
+	}
+	
+	private void achieveExpectedConnectionState() {
+		ConnectionState currentState = pusher.getConnection().getState();
+		if(currentState == targetState) {
+			// do nothing, we're there.
+			failedConnectionAttempts = 0;
+		}
+		else if( targetState == ConnectionState.CONNECTED &&
+						 failedConnectionAttempts == MAX_RETRIES ) {
+			targetState = ConnectionState.DISCONNECTED;
+			log( "failed to connect after " + failedConnectionAttempts + " attempts. Reconnection attempts stopped.");
+		}
+		else if( currentState == ConnectionState.DISCONNECTED &&
+				     targetState == ConnectionState.CONNECTED ) {
+			Runnable task = new Runnable() {
+		    public void run() {
+		      pusher.connect();
+		    }
+		  };
+		  log("Connecting in " + failedConnectionAttempts + " seconds");
+		  connectionAttemptsWorker.schedule(task, (failedConnectionAttempts), TimeUnit.SECONDS);
+		  ++failedConnectionAttempts;
+		}
+		else if( currentState == ConnectionState.CONNECTED &&
+						 targetState == ConnectionState.DISCONNECTED ) {
+			pusher.disconnect();
+		}
+		else {
+			// transitional state
+		}
 	}
 	
 	//ConnectionEventListener implementation
@@ -72,6 +108,8 @@ public class MainActivity extends Activity
 				change.getPreviousState(), change.getCurrentState() );
 		
 		log( msg );
+		
+		achieveExpectedConnectionState();
 	}
 
 	public void onError(String message, String code, Exception e) {
