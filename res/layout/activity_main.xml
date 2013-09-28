@@ -3,12 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
-    
-    <Switch
-            android:id="@+id/connectSwitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/connection_switch_text" />
 
     <ScrollView
         android:id="@+id/scrollView1"
@@ -30,5 +24,13 @@
 	        </TextView>
             
     </ScrollView>
+
+    <CheckBox
+        android:id="@+id/connectCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="Connect" />
 
 </RelativeLayout>

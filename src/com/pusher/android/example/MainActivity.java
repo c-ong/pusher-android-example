@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.pusher.client.Pusher;
@@ -34,7 +34,7 @@ public class MainActivity extends Activity
 	private int failedConnectionAttempts = 0;
 	private static int MAX_RETRIES = 10;
 	
-	private Switch connectionSwitch;
+	private CheckBox connectionSwitch;
 	private TextView logTextView;
 
 	@Override
@@ -62,7 +62,7 @@ public class MainActivity extends Activity
 	
 	// Connect/disconnect depending on switch state
 	private void bindToConnectionSwitch() {
-		connectionSwitch = (Switch)this.findViewById(R.id.connectSwitch);
+		connectionSwitch = (CheckBox)this.findViewById(R.id.connectCheckBox);
 		connectionSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			public void onCheckedChanged(CompoundButton button, boolean checked) {
 				targetState = (checked? ConnectionState.CONNECTED : ConnectionState.DISCONNECTED );
